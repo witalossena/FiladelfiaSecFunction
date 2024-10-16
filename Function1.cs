@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using FiladelfiaFunction.Akrun;
+using FiladelfiaFunction.Akrun.Models;
 using FiladelfiaFunction.Filadelfia;
 using FiladelfiaFunction.Filadelfia.Models;
 using Microsoft.Azure.Functions.Worker;
@@ -24,50 +25,63 @@ namespace FiladelfiaFunction
         [Function("Function1")]
         public async Task Run([TimerTrigger("0 */2 * * * *")] TimerInfo myTimer)
         {
+            List<Series> series = await _akrualApiServices.GetAllSeries();
 
-            var emissao = new Emissao
+            foreach (Series item in series)
             {
-           
-                Title = "POST FUNCTION",
-                Status = "publish",
-                Meta = new Meta
+                var emissao = new Emissao
                 {
-                    SerieId = "1290",
-                    NomeFantasia = "POST FUNCTION",
-                    CodigoIn = "",
-                    CodigoCetip = "",
-                    DataUltimoPagamento = "",
-                    JurosUltimoPagamento = "0",
-                    DataProximoPagamento = "",
-                    JurosProximoPagamento = "0",
-                    TipoEmissao = "",
-                    NumeroEmissao = "0",
-                    TipoSubordinacao = "",                
-                    NumeroSerie = "0",
-                    DataEmissao = "2024-05-06T00:00:00",
-                    DataVencimento = "2029-05-07T00:00:00",
-                    Quantidade = "5700",
-                    PuEmissao = "1000m",
-                    ValorGlobalEmissao = "5700000m",
-                    PeriodoPagamentoJuros = "Anual",
-                    PeriodoPagamentoAmort = "Anual",
-                    Remuneracao = "CDI + 10,0000% a.a",
-                    TipoDeOferta = "Indefinido",
-                    MedicaoIntegralizacaoCotas = "",
-                    Cedentes = "",
-                    Escriturador = "",
-                    CoordenadorLider = "",
-                    NaturezaLastro = "Não definido"
-                }
-            };
+                   Title = item.NomeFantasia ?? "",
+                   Status = "publish",
+                   Meta = new Meta
+                   {
+                       SerieId = item.SerieId ?? "",
+                       NomeFantasia = item.NomeFantasia ?? "",
+                       CodigoISIN = item.CodigoISIN,
+                       CodigoCETIP = item.CodigoCETIP,
+                       DataUltimoPagamento = item.DataUltimoPagamento ?? "",
+                       JurosUltimoPagamento = item.JurosProximoPagamento ?? "",
+                       DataProximoPagamento = item.DataProximoPagamento ?? "",
+                       JurosProximoPagamento = item.JurosProximoPagamento ?? "",
+                       TipoEmissao = item.TipoEmissao ?? "",
+                       NumeroEmissao = item.NumeroEmissao ?? "",
+                       TipoSuboordinacao = item.TipoSuboordinacao ?? "",                
+                       NumeroSerie = item.NumeroSerie ?? "",
+                       DataEmissao = item.DataEmissao ?? "",
+                       DataVencimento = item.DataVencimento ?? "",
+                       Quantidade = item.Quantidade ?? "",
+                       PUEmissao = item.PUEmissao ?? "",
+                       ValorGlobalEmissao = item.ValorGlobalEmissao ?? "",
+                       PeriodoPagamentoJuros = item.PeriodoPagamentoJuros ?? "",
+                       PeriodoPagamentoAmort = item.PeriodoPagamentoAmort ?? "",
+                       Remuneracao = item.Remuneracao ?? "",
+                       TipoDeOferta = item.TipoDeOferta ?? "",
+                       MedicaoIntegralizacaoCotas = item.MedicaoIntegralizacaoCotas ?? "",
+                       Cedentes = item.Cedentes ?? "",
+                       Escriturador = item.Escriturador ?? "",
+                       CoordenadorLider = item.CoordenadorLider ?? "",
+                       NaturezaLastro = item.NaturezaLastro ?? "",
+                       AgenteFiduciario = item.AgenteFiduciario,
+                       NomeSerie = item.NomeSerie ?? "",
+                       AmortProximoPagamento = item.AmortProximoPagamento ?? "",
+                       IndiceCorrecao = item.IndiceCorrecao ?? "",
+                       IsSimulada = item.IsSimulada,
+                       IsAtivo = "1"
+                   }
+                };
 
-            var data = await _filadelfiaApiServices.CreateEmissao(emissao);
-            var jsonData = JsonSerializer.Serialize(data, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
+                await _akrualApiServices.GetPus(emissao.Meta.SerieId);
 
-            _logger.LogInformation($"API Data: {jsonData}");
+                //_filadelfiaApiServices.CreateEmissao(emissao);
+
+                //var jsonData = JsonSerializer.Serialize(data, new JsonSerializerOptions
+                //{
+                //    WriteIndented = true
+                //});
+
+            }     
+
+            _logger.LogInformation($"Finished!");
         }
     }
 }

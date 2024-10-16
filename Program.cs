@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FiladelfiaFunction.Filadelfia;
+using FiladelfiaFunction.Data;
 
 
 var host = new HostBuilder()
@@ -31,8 +32,10 @@ var host = new HostBuilder()
         services.AddHttpClient<AkrualApiServices>();
         services.AddSingleton<AuthAkrual>();
 
+
         //filadelfia
         services.AddHttpClient<FiladelfiaApiServices>();
+        services.AddSingleton<FiladelfiaDb>();
 
 
 

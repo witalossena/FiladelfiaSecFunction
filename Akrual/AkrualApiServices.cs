@@ -1,4 +1,6 @@
-﻿using FiladelfiaFunction.Akrun.Models;
+﻿using FiladelfiaFunction.Akrual.Models;
+using FiladelfiaFunction.Akrun.Models;
+using FiladelfiaFunction.Filadelfia.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -41,6 +43,23 @@ namespace FiladelfiaFunction.Akrun
 
             return series;
         }
+        public async Task<Dictionary<string, List<Pu>>> GetPus(string SerieId)
+        {
+            var accessToken = await _authAkrual.GetAccessTokenAsync();
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync($"{_appSettings.BaseUrl}/CRM/GetPus?serieId={SerieId}");
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var seriesData = JsonConvert.DeserializeObject<Dictionary<string, List<Pu>>>(jsonResponse);
+
+            return seriesData;  
+        }
+
 
 
 
