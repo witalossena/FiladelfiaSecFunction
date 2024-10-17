@@ -8,10 +8,11 @@ namespace FiladelfiaFunction
 {
     public class AkrualSettings
     {
-        public string? BaseUrl { get; set; }
+        public string? BaseUrl { get; set; }     
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? GrantType { get; set; }
+        
     }
 
     public class FiladelfiaSettings
@@ -20,6 +21,7 @@ namespace FiladelfiaFunction
         public string? Username { get; set; }
         public string? Password { get; set; }
         public required string  DatabaseUrl { get; set;}
+        public string? BaseUrlJet { get; set; }
     }
 
 }

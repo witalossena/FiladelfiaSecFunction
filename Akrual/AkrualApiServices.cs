@@ -33,7 +33,7 @@ namespace FiladelfiaFunction.Akrun
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            var response = await _httpClient.GetAsync(_appSettings.BaseUrl + "/Escrituracao/GetAllSeries");
+            var response = await _httpClient.GetAsync($"{_appSettings.BaseUrl}/Escrituracao/GetAllSeries");
 
             response.EnsureSuccessStatusCode();
 

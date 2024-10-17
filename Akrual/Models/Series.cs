@@ -8,7 +8,7 @@ namespace FiladelfiaFunction.Akrun.Models
 {
     public class Series
     {
-        public string DataUltimoPagamento { get; set; } 
+        public string DataUltimoPagamento  { get; set; } 
         public string JurosUltimoPagamento { get; set; } 
         public string AmortUltimoPagamento { get; set; }
         public string AmexUltimoPagamento { get; set; }
@@ -57,6 +57,7 @@ namespace FiladelfiaFunction.Akrun.Models
         public string NumeroDeCotas { get; set; }
         public string Documents { get; set; } 
         public string MedicaoIntegralizacaoCotas { get; set; }
+        public string Codigocetip { get; set; }
 
     }
 

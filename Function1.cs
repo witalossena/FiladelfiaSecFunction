@@ -23,63 +23,58 @@ namespace FiladelfiaFunction
         }
 
         [Function("Function1")]
-        public async Task Run([TimerTrigger("0 */2 * * * *")] TimerInfo myTimer)
-        {
+
+
+        //public async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer) //RODARA TODO DIA AS 8H DA MANHA
+        public async Task Run([TimerTrigger("0 */2 * * * *")] TimerInfo myTimer) //RODARA A CADA 2 MINUTOS
+
+       // public async Task Run([TimerTrigger("0 0 */2 * * *")] TimerInfo myTimer) //TRIGGER SETADO PARA RODAR A CADA 2 HORAS
+        {       
             List<Series> series = await _akrualApiServices.GetAllSeries();
 
             foreach (Series item in series)
             {
-                var emissao = new Emissao
+                var emissao = new DetalhesEmissao
                 {
-                   Title = item.NomeFantasia ?? "",
-                   Status = "publish",
-                   Meta = new Meta
-                   {
-                       SerieId = item.SerieId ?? "",
-                       NomeFantasia = item.NomeFantasia ?? "",
-                       CodigoISIN = item.CodigoISIN,
-                       CodigoCETIP = item.CodigoCETIP,
-                       DataUltimoPagamento = item.DataUltimoPagamento ?? "",
-                       JurosUltimoPagamento = item.JurosProximoPagamento ?? "",
-                       DataProximoPagamento = item.DataProximoPagamento ?? "",
-                       JurosProximoPagamento = item.JurosProximoPagamento ?? "",
-                       TipoEmissao = item.TipoEmissao ?? "",
-                       NumeroEmissao = item.NumeroEmissao ?? "",
-                       TipoSuboordinacao = item.TipoSuboordinacao ?? "",                
-                       NumeroSerie = item.NumeroSerie ?? "",
-                       DataEmissao = item.DataEmissao ?? "",
-                       DataVencimento = item.DataVencimento ?? "",
-                       Quantidade = item.Quantidade ?? "",
-                       PUEmissao = item.PUEmissao ?? "",
-                       ValorGlobalEmissao = item.ValorGlobalEmissao ?? "",
-                       PeriodoPagamentoJuros = item.PeriodoPagamentoJuros ?? "",
-                       PeriodoPagamentoAmort = item.PeriodoPagamentoAmort ?? "",
-                       Remuneracao = item.Remuneracao ?? "",
-                       TipoDeOferta = item.TipoDeOferta ?? "",
-                       MedicaoIntegralizacaoCotas = item.MedicaoIntegralizacaoCotas ?? "",
-                       Cedentes = item.Cedentes ?? "",
-                       Escriturador = item.Escriturador ?? "",
-                       CoordenadorLider = item.CoordenadorLider ?? "",
-                       NaturezaLastro = item.NaturezaLastro ?? "",
-                       AgenteFiduciario = item.AgenteFiduciario,
-                       NomeSerie = item.NomeSerie ?? "",
-                       AmortProximoPagamento = item.AmortProximoPagamento ?? "",
-                       IndiceCorrecao = item.IndiceCorrecao ?? "",
-                       IsSimulada = item.IsSimulada,
-                       IsAtivo = "1"
-                   }
+                    SerieId = item.SerieId ?? "",
+                    NomeFantasia = item.NomeFantasia ?? "",
+                    CodigoIsin = item.CodigoISIN ?? "",
+                    CodigoCetip = item.CodigoCETIP ?? "",
+                    DataUltimoPagamento = item.DataUltimoPagamento ?? "",
+                    JurosUltimoPagamento = item.JurosProximoPagamento ?? "",
+                    DataProximoPagamento = item.DataProximoPagamento ?? "",
+                    JurosProximoPagamento = item.JurosProximoPagamento ?? "",
+                    TipoEmissao = item.TipoEmissao ?? "",
+                    NumeroEmissao = item.NumeroEmissao ?? "",
+                    TiposSubordinacao = item.TipoSuboordinacao ?? "",
+                    NumeroSerie = item.NumeroSerie ?? "",
+                    DataEmissao = item.DataEmissao ?? "",
+                    DataVencimento = item.DataVencimento ?? "",
+                    Quantidade = item.Quantidade ?? "",
+                    PuEmissao = item.PUEmissao ?? "",
+                    ValorGlobalEmissao = item.ValorGlobalEmissao ?? "",
+                    PeriodoPagamentoJuros = item.PeriodoPagamentoJuros ?? "",
+                    PeriodoPagamentoAmort = item.PeriodoPagamentoAmort ?? "",
+                    Remuneracao = item.Remuneracao ?? "",
+                    TipoDeOferta = item.TipoDeOferta ?? "",
+                    MedicacaoIntegralizacaoCotas = item.MedicaoIntegralizacaoCotas ?? "",
+                    Cedentes = item.Cedentes ?? "",
+                    Escriturador = item.Escriturador ?? "",
+                    CoordenadorLider = item.CoordenadorLider ?? "",
+                    NaturezaLastro = item.NaturezaLastro ?? "",
+                    AgenteFiduciario = item.AgenteFiduciario ?? "",
+                    NomeSerie = item.NomeSerie ?? "",
+                    AmortProximoPagamento = item.AmortProximoPagamento ?? "",
+                    IndiceCorrecao = item.IndiceCorrecao ?? "",
+                    IsSimulada = item.IsSimulada,
+                    IsAtivo = item.IsAtivo,
+
+
                 };
 
-                await _akrualApiServices.GetPus(emissao.Meta.SerieId);
+                await _filadelfiaApiServices.CreateOrUpdateEmissao(emissao);        
 
-                //_filadelfiaApiServices.CreateEmissao(emissao);
-
-                //var jsonData = JsonSerializer.Serialize(data, new JsonSerializerOptions
-                //{
-                //    WriteIndented = true
-                //});
-
-            }     
+            }
 
             _logger.LogInformation($"Finished!");
         }

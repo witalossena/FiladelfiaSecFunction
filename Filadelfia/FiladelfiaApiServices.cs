@@ -1,6 +1,7 @@
 ﻿using FiladelfiaFunction.Akrun.Models;
 using FiladelfiaFunction.Data;
 using FiladelfiaFunction.Filadelfia.Models;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -30,7 +31,7 @@ namespace FiladelfiaFunction.Filadelfia
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
         }
 
-        public async Task<List<Emissao>> GetEmissoes()
+        public async Task<List<DetalhesEmissao>> GetEmissoesWordpressApi()
         {
             var response = await _httpClient.GetAsync(_settings.BaseUrl + "/emissoes");
 
@@ -38,27 +39,40 @@ namespace FiladelfiaFunction.Filadelfia
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
 
-            var emissoes = JsonConvert.DeserializeObject<List<Emissao>>(jsonResponse);
-
+            var emissoes = JsonConvert.DeserializeObject<List<DetalhesEmissao>>(jsonResponse);
 
             return emissoes;
 
         }
 
-        public async Task DeleteEmissao(string id)
+        public async Task DeleteEmissaoWordpressApi(string id)
         {
             var response = await _httpClient.DeleteAsync($"{_settings.BaseUrl}/emissoes/{id}");
 
         }
 
-        public async Task<string> CreateEmissaoWordPressPost(Emissao emissao)
+        public async Task<List<DetalhesEmissao>> GetEmissoesJetEngine()
         {
+            var response = await _httpClient.GetAsync($"{_settings.BaseUrlJet}/detalhes");
 
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var emissoes = JsonConvert.DeserializeObject<List<DetalhesEmissao>>(jsonResponse);
+
+
+            return emissoes;
+
+        }  
+
+        public async Task<string> CreateEmissaoDetalhesJetEngine(DetalhesEmissao emissao)
+        {
             var jsonEmissao = JsonConvert.SerializeObject(emissao);
 
-            var emissao_testejson = new StringContent(jsonEmissao, Encoding.UTF8, "application/json");
+            var detalhes = new StringContent(jsonEmissao, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{_settings.BaseUrl}/emissoes", emissao_testejson);
+            var response = await _httpClient.PostAsync($"{_settings.BaseUrlJet}/detalhes", detalhes);
 
             response.EnsureSuccessStatusCode();
 
@@ -68,28 +82,49 @@ namespace FiladelfiaFunction.Filadelfia
 
         }
 
+        public async Task<string> UpdateEmissaoDetalhesJetEngine(DetalhesEmissao emissao)
+        { 
 
-        public void CreateEmissao(Emissao emissao)
+            var jsonEmissao = JsonConvert.SerializeObject(emissao);
+
+            var detalhes = new StringContent(jsonEmissao, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_settings.BaseUrlJet}/detalhes/{emissao.Id}", detalhes);
+
+            response.EnsureSuccessStatusCode();
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return responseContent;
+
+        }
+
+        public async Task CreateOrUpdateEmissao(DetalhesEmissao emissao)
         {
             try
             {
-                _filadelfiaDb.InsertOrUpdateWpEmissao(emissao);
+                if(await _filadelfiaDb.PostExist(emissao.NomeSerie))
+                {
+                    var UpdatedData = await GetEmissoesJetEngine();
+
+                    foreach( var item in UpdatedData)
+                    {
+                        await UpdateEmissaoDetalhesJetEngine(item);
+                    }
+                }
+                else
+                {
+                    await CreateEmissaoDetalhesJetEngine(emissao);
+                }
 
             }
             catch (Exception)
             {
-
                 throw;
             }
-
-
         }
 
-        public void CreateDesagio(Desagio desagio)
-        {
-
-        }
-
+ 
 
     }
 }
