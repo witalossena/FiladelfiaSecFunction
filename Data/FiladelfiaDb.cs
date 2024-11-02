@@ -24,7 +24,7 @@ namespace FiladelfiaFunction.Data
         {
             using var connection = new MySqlConnection(_settings.DatabaseUrl);
 
-            var exists = await connection.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM wp_posts WHERE post_title = @post_title", new { post_title });
+            var exists = await connection.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM wp_posts WHERE post_status = 'publish' AND post_title = @post_title", new { post_title });
 
             if (exists == 0)
             {
