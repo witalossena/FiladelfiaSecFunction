@@ -43,7 +43,8 @@ namespace FiladelfiaFunction.Akrun
 
             return series;
         }
-        public async Task<Dictionary<string, List<Pu>>> GetPus(string SerieId)
+        //public async Task<Dictionary<string, List<Pu>>> GetPus(string SerieId)
+        public async Task<List<Akrual.Models.Pu>> GetPus(string SerieId)
         {
             var accessToken = await _authAkrual.GetAccessTokenAsync();
 
@@ -55,9 +56,11 @@ namespace FiladelfiaFunction.Akrun
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
 
-            var seriesData = JsonConvert.DeserializeObject<Dictionary<string, List<Pu>>>(jsonResponse);
+            var seriesData = JsonConvert.DeserializeObject<Dictionary<string, List<Akrual.Models.Pu>>>(jsonResponse);
 
-            return seriesData;  
+            List<Akrual.Models.Pu> puList = seriesData.Values.SelectMany(x => x).ToList();
+
+            return puList;  
         }
 
 

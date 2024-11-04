@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FiladelfiaFunction.Akrual.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,8 @@ namespace FiladelfiaFunction.Akrun.Models
         public string Documents { get; set; } 
         public string MedicaoIntegralizacaoCotas { get; set; }
         public string Codigocetip { get; set; }
+
+        public List<Pu> Pudata { get; set; }
 
     }
 

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using FiladelfiaFunction.Akrual;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,7 +160,7 @@ namespace FiladelfiaFunction.Filadelfia.Models
         public string Devedores { get; set; } = string.Empty;
 
         [JsonProperty("tiposuboordinacao")]
-        public string TiposSubordinacao { get; set; } = string.Empty;
+        public string TipoSuboordinacao { get; set; } = string.Empty;
 
         [JsonProperty("escriturador")]
         public string Escriturador { get; set; } = string.Empty;
@@ -174,12 +175,14 @@ namespace FiladelfiaFunction.Filadelfia.Models
         public string Documents { get; set; } = string.Empty;
 
         [JsonProperty("medicaointegralizacaocotas")]
-        public string MedicacaoIntegralizacaoCotas { get; set; } = string.Empty;
+        public string MedicaoIntegralizacaoCotas { get; set; } = string.Empty;
 
         [JsonProperty("cct_slug")]
         public string CctSlug { get; set; } = string.Empty;
 
 
-    }    
+        public List<Pu> PuData { get; set; } = []; 
+
+    }
 
 }

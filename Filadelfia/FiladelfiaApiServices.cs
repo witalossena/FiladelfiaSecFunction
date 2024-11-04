@@ -81,6 +81,21 @@ namespace FiladelfiaFunction.Filadelfia
             return responseContent;
 
         }
+        public async Task<string> CreateEmissaoDesagioJetEngine(Pu PuData)
+        {
+            var jsonEmissao = JsonConvert.SerializeObject(PuData);
+
+            var data = new StringContent(jsonEmissao, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_settings.BaseUrlJet}/desagio", data);
+
+            response.EnsureSuccessStatusCode();
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return responseContent;
+
+        }
 
         public async Task<string> UpdateEmissaoDetalhesJetEngine(DetalhesEmissao emissao)
         { 
@@ -103,18 +118,20 @@ namespace FiladelfiaFunction.Filadelfia
         {
             try
             {
-                if(await _filadelfiaDb.PostExist(emissao.NomeSerie))
-                {
-                    var UpdatedData = await GetEmissoesJetEngine();
+                _filadelfiaDb.DeleteDesagioJetCct(emissao.SerieId);
 
-                    foreach( var item in UpdatedData)
-                    {
-                        await UpdateEmissaoDetalhesJetEngine(item);
-                    }
+                if (await _filadelfiaDb.PostExist(emissao.NomeSerie))
+                {
+                    _filadelfiaDb.UpdateWpEmissao(emissao);
                 }
                 else
                 {
                     await CreateEmissaoDetalhesJetEngine(emissao);
+                }
+
+                foreach (var item in emissao.PuData.Take(100))
+                {
+                    await CreateEmissaoDesagioJetEngine(item);
                 }
 
             }

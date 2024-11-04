@@ -95,6 +95,16 @@ namespace FiladelfiaFunction.Data
 
         }
 
+        public void DeleteDesagioJetCct(string seriesid)
+        {
+            using var connection = new MySqlConnection(_settings.DatabaseUrl);
+
+            string sql = "DELETE FROM wp_jet_cct_desagio WHERE seriesid = @seriesid";
+
+            connection.Execute(sql, new { seriesid });
+
+        }
+
 
     }
 }
