@@ -30,12 +30,11 @@ namespace FiladelfiaFunction
 
         //public async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer) //RODARA TODO DIA AS 8H DA MANHA
         public async Task Run([TimerTrigger("0 */2 * * * *")] TimerInfo myTimer) //RODARA A CADA 2 MINUTOS
-
         // public async Task Run([TimerTrigger("0 0 */2 * * *")] TimerInfo myTimer) //TRIGGER SETADO PARA RODAR A CADA 2 HORAS
         {
             List<Series> series = await _akrualApiServices.GetAllSeries();
 
-            foreach (Series item in series.Where(x=> x.IsAtivo == "true" /*&& x.IsSimulada == "false" */))
+            foreach (Series item in series.Where(x=> x.IsAtivo == "true" && x.IsSimulada == "false"))
             {
                 var emissao = new DetalhesEmissao
                 {

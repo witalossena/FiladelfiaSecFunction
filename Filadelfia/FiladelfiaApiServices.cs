@@ -129,7 +129,7 @@ namespace FiladelfiaFunction.Filadelfia
                     await CreateEmissaoDetalhesJetEngine(emissao);
                 }
 
-                foreach (var item in emissao.PuData.Take(100))
+                foreach (var item in emissao.PuData)
                 {
                     await CreateEmissaoDesagioJetEngine(item);
                 }

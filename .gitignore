@@ -264,3 +264,4 @@ __pycache__/
 *.pyc
 /appsettings.json
 /AppSettings.cs
+/appsettings.json
