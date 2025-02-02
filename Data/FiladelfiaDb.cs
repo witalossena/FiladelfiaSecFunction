@@ -1,45 +1,58 @@
 ﻿using Dapper;
-using FiladelfiaFunction.Akrun.Models;
 using FiladelfiaFunction.Filadelfia.Models;
 using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FiladelfiaFunction.Data
 {
-    public class FiladelfiaDb
+  public class FiladelfiaDb(IOptions<FiladelfiaSettings> settings)
+  {
+    private readonly FiladelfiaSettings _settings = settings.Value;
+
+    public async Task<bool> PostExist(string post_title)
     {
-        private readonly FiladelfiaSettings _settings;
-        public FiladelfiaDb(IOptions<FiladelfiaSettings> settings)
-        {
-            _settings = settings.Value;
-        }
+      if (string.IsNullOrEmpty(_settings.DatabaseUrl))
+      {
+        throw new ArgumentNullException(nameof(_settings.DatabaseUrl), "Database connection string cannot be null or empty.");
+      }
 
-        public async Task<bool> PostExist(string post_title)
-        {
-            using var connection = new MySqlConnection(_settings.DatabaseUrl);
+      if (string.IsNullOrEmpty(post_title))
+      {
+        throw new ArgumentNullException(nameof(post_title), "Post title cannot be null or empty.");
+      }
 
-            var exists = await connection.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM wp_posts WHERE post_status = 'publish' AND post_title = @post_title", new { post_title });
+      try
+      {
+        using var connection = new MySqlConnection(_settings.DatabaseUrl);
+        await connection.OpenAsync().ConfigureAwait(false);
 
-            if (exists == 0)
-            {
-                return false;
-            }
+        string sql = @"
+            SELECT COUNT(1) 
+            FROM wp_posts 
+            WHERE post_status = 'publish' 
+            AND post_title = @post_title";
 
-            return true;
+        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { post_title }).ConfigureAwait(false);
 
-        }
+        return exists;
+      }
+      catch (MySqlException ex)
+      {
+        Console.Error.WriteLine($"Database error: {ex.Message}");
+        throw; 
+      }
+      catch (Exception ex)
+      {
+        Console.Error.WriteLine($"Unexpected error: {ex.Message}");
+        throw;
+      }
+    }
 
-        public void UpdateWpEmissao(DetalhesEmissao emissao)
-        {
-            using var connection = new MySqlConnection(_settings.DatabaseUrl);         
+    public void UpdateWpEmissao(DetalhesEmissao emissao)
+    {
+      using var connection = new MySqlConnection(_settings.DatabaseUrl);
 
-            string sqlUpdate = @"
+      string sqlUpdate = @"
                     UPDATE wp_jet_cct_detalhes SET
                         NomeFantasia = @NomeFantasia,
                         DataUltimoPagamento = @DataUltimoPagamento,
@@ -87,24 +100,52 @@ namespace FiladelfiaFunction.Data
                         Escriturador = @Escriturador,
                         CoordenadorLider = @CoordenadorLider,
                         NumeroDeCotas = @NumeroDeCotas,
-                        Documents = @Documents,
                         MedicaoIntegralizacaoCotas = @MedicaoIntegralizacaoCotas
                  WHERE SerieId = @SerieId";
 
-            connection.Execute(sqlUpdate, emissao);
-
-        }
-
-        public void DeleteDesagioJetCct(string seriesid)
-        {
-            using var connection = new MySqlConnection(_settings.DatabaseUrl);
-
-            string sql = "DELETE FROM wp_jet_cct_desagio WHERE seriesid = @seriesid";
-
-            connection.Execute(sql, new { seriesid });
-
-        }
-
+      connection.Execute(sqlUpdate, emissao);
 
     }
+
+    public void DeleteDesagioJetCct(string seriesid)
+    {
+      using var connection = new MySqlConnection(_settings.DatabaseUrl);
+
+      string sql = "DELETE FROM wp_jet_cct_desagio WHERE seriesid = @seriesid";
+
+      connection.Execute(sql, new { seriesid });
+
+    }
+
+    public async Task DeleteDocumentos()
+    {
+      if (string.IsNullOrEmpty(_settings.DatabaseUrl))
+      {
+        throw new ArgumentNullException(nameof(_settings.DatabaseUrl), "Database connection string cannot be null or empty.");
+      }
+
+      try
+      {
+        using var connection = new MySqlConnection(_settings.DatabaseUrl);
+        await connection.OpenAsync().ConfigureAwait(false);
+
+        string sql = "DELETE FROM wp_jet_cct_detalhesdocumentos";
+
+        int affectedRows = await connection.ExecuteAsync(sql).ConfigureAwait(false);
+
+        Console.WriteLine($"Deleted {affectedRows} rows from wp_jet_cct_detalhesdocumentos.");
+      }
+      catch (MySqlException ex)
+      {
+        Console.Error.WriteLine($"Database error: {ex.Message}");
+        throw;
+      }
+      catch (Exception ex)
+      {
+        Console.Error.WriteLine($"Unexpected error: {ex.Message}");
+        throw;
+      }
+    }
+
+  }
 }
